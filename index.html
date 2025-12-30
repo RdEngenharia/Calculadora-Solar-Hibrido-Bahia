@@ -296,5 +296,12 @@
         updateResults();
     });
     </script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/Calculadora-Solar-Hibrido/sw.js')
+                .then(reg => console.log('Service Worker registrado', reg))
+                .catch(err => console.log('Erro no Service Worker', err));
+            </script>
 </body>
+
 </html>
