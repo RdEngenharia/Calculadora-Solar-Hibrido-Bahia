@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Solar Híbrida Profissional - Edição Bahia</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        .summary-card { background: linear-gradient(145deg, #1f2937, #374151); }
+        .result-highlight { color: #f59e0b; }
+        .dashboard-item { background-color: rgba(30, 41, 59, 0.5); }
+    </style>
+    <script>tailwind.config = { darkMode: 'class' }</script>
+</head>
+<body class="bg-gray-900 text-gray-200 antialiased">
+
+    <div id="app-container" class="container mx-auto p-4 md:p-8 max-w-6xl">
+        <header class="text-center mb-10">
+            <h1 class="text-3xl md:text-5xl font-bold text-blue-400">Calculadora Solar Híbrida Profissional</h1>
+            <p class="text-gray-400 mt-2 text-lg">Edição Bahia RD ENGENHARIA - Bem Vindo Integrador</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+            <div class="lg:col-span-2 space-y-8">
+                <section class="bg-gray-800 p-6 rounded-lg shadow-lg">
+                    <h2 class="text-xl font-semibold mb-4 text-blue-400 border-b border-gray-700 pb-2">1. Configurações de Sistema</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-1">Consumo Mensal da Conta (kWh)</label>
+                            <input type="number" id="monthly-consumption-input" value="400" class="w-full p-2 bg-gray-700 border border-gray-600 rounded-md">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-1">Autonomia de Backup (Dias)</label>
+                            <select id="autonomy-days" class="w-full p-2 bg-gray-700 border border-gray-600 rounded-md">
+                                <option value="1">1 Dia</option>
+                                <option value="2">2 Dias</option>
+                                <option value="3">3 Dias</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-1">Potência do Painel (Watts)</label>
+                            <input type="number" id="panel-wattage-input" value="550" class="w-full p-2 bg-gray-700 border border-gray-600 rounded-md">
+                        </div>
+                    </div>
+                </section>
+
+                <section class="bg-gray-800 p-6 rounded-lg shadow-lg">
+                    <h2 class="text-xl font-semibold mb-4 text-blue-400 border-b border-gray-700 pb-2">2. Cargas de Backup</h2>
+                    
+                    <div class="flex mb-4 gap-2">
+                        <button id="tab-preset" class="flex-1 py-1 text-xs font-bold rounded bg-blue-600 text-white border border-blue-400">Equipamentos Base</button>
+                        <button id="tab-custom" class="flex-1 py-1 text-xs font-bold rounded bg-gray-700 text-gray-400 border border-gray-600">Personalizado</button>
+                    </div>
+
+                    <form id="add-equipment-form" class="space-y-4">
+                        <div id="fields-preset">
+                            <label class="block text-xs text-gray-500 mb-1">Selecionar Item da Base</label>
+                            <select id="equipment-select" class="w-full p-2 bg-gray-700 border border-gray-600 rounded-md"></select>
+                        </div>
+
+                        <div id="fields-custom" class="hidden space-y-3">
+                            <div>
+                                <label class="block text-xs text-gray-500 mb-1">Nome do Equipamento</label>
+                                <input type="text" id="custom-name" placeholder="Ex: Furadeira" class="w-full p-2 bg-gray-700 border border-gray-600 rounded-md">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-500 mb-1">Potência (Watts)</label>
+                                <input type="number" id="custom-power" placeholder="0" class="w-full p-2 bg-gray-700 border border-gray-600 rounded-md">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs text-gray-500 mb-1">Quantidade</label>
+                                <input type="number" id="quantity-input" value="1" min="1" class="w-full p-2 bg-gray-700 border border-gray-600 rounded-md">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-500 mb-1">Horas/Uso (Noite)</label>
+                                <input type="number" id="hours-input" value="8" step="0.1" class="w-full p-2 bg-gray-700 border border-gray-600 rounded-md">
+                            </div>
+                        </div>
+                        <button type="submit" class="w-full bg-blue-600 text-white font-bold py-2 rounded-md hover:bg-blue-700 transition">Adicionar à Lista</button>
+                    </form>
+                </section>
+            </div>
+
+            <div class="lg:col-span-3">
+                <section class="bg-gray-800 p-6 rounded-lg shadow-lg">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold text-blue-400">Lista de Backup</h2>
+                        <button id="clear-list-btn" class="text-xs bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded font-bold transition">LIMPAR TUDO</button>
+                    </div>
+                    <div class="overflow-x-auto mb-6 max-h-64 border-b border-gray-700">
+                        <table class="min-w-full text-sm">
+                            <tbody id="equipment-list-body"></tbody>
+                        </table>
+                    </div>
+
+                    <div class="summary-card p-6 rounded-lg space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                            <div class="dashboard-item p-4 rounded-lg">
+                                <h4 class="font-bold text-gray-300">Painéis</h4>
+                                <p class="text-3xl font-bold result-highlight" id="total-panels">0</p>
+                                <p class="text-[10px] text-gray-400">Módulos de <span id="p-w-disp">550</span>W</p>
+                            </div>
+                            <div class="dashboard-item p-4 rounded-lg">
+                                <h4 class="font-bold text-gray-300">Baterias</h4>
+                                <p class="text-3xl font-bold result-highlight" id="total-batteries">0</p>
+                                <p class="text-[10px] text-gray-400">Lítio 48V (80% DoD)</p>
+                            </div>
+                            <div class="dashboard-item p-4 rounded-lg">
+                                <h4 class="font-bold text-gray-300">Inversor Sugerido</h4>
+                                <p class="text-3xl font-bold result-highlight"><span id="inverter-size">0</span> kW</p>
+                                <p class="text-[10px] text-gray-400">Híbrido de Alta Performance</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
+                            <button id="copy-budget-btn" class="bg-green-600 py-3 rounded-md font-bold flex items-center justify-center gap-2">📱 WhatsApp</button>
+                            <button id="download-pdf-btn" class="bg-red-700 py-3 rounded-md font-bold flex items-center justify-center gap-2">📄 Gerar PDF</button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- BASE DE DADOS ORIGINAL INTEGRAL ---
+        const equipmentDatabase = [
+            { name: 'Geladeira 3 Portas Inverter', potencia_w: 180, fator_ciclo: 0.35, pico_arranque: 1.2, is_24h: true },
+            { name: 'Geladeira Simples (ON/OFF)', potencia_w: 150, fator_ciclo: 0.30, pico_arranque: 6.0, is_24h: true },
+            { name: 'Freezer Horizontal', potencia_w: 250, fator_ciclo: 0.40, pico_arranque: 5.0, is_24h: true },
+            { name: 'Ar-Condicionado Inverter 9k', potencia_w: 800, fator_ciclo: 0.45, pico_arranque: 1.2, is_24h: false },
+            { name: 'Ar-Condicionado Inverter 12k', potencia_w: 1100, fator_ciclo: 0.45, pico_arranque: 1.2, is_24h: false },
+            { name: 'Ar-Condicionado Inverter 18k', potencia_w: 1600, fator_ciclo: 0.45, pico_arranque: 1.2, is_24h: false },
+            { name: 'Ar-Condicionado Split 9k (Comum)', potencia_w: 1000, fator_ciclo: 0.70, pico_arranque: 4.0, is_24h: false },
+            { name: 'Ar-Condicionado Split 12k (Comum)', potencia_w: 1300, fator_ciclo: 0.70, pico_arranque: 4.0, is_24h: false },
+            { name: 'Ar-Condicionado Split 18k (Comum)', potencia_w: 1900, fator_ciclo: 0.70, pico_arranque: 4.0, is_24h: false },
+            { name: 'Micro-ondas', potencia_w: 1200, fator_ciclo: 1.0, pico_arranque: 1.5, is_24h: false },
+            { name: 'Bomba de Poço (1 CV)', potencia_w: 740, fator_ciclo: 1.0, pico_arranque: 6.0, is_24h: false },
+            { name: 'Máquina de Lavar', potencia_w: 500, fator_ciclo: 1.0, pico_arranque: 3.0, is_24h: false },
+            { name: 'TV LED (Média)', potencia_w: 100, fator_ciclo: 1.0, pico_arranque: 1.1, is_24h: false },
+            { name: 'Ventilador', potencia_w: 80, fator_ciclo: 1.0, pico_arranque: 2.0, is_24h: false },
+            { name: 'Iluminação LED (Kit 10 lâmpadas)', potencia_w: 100, fator_ciclo: 1.0, pico_arranque: 1.0, is_24h: false }
+        ];
+
+        let criticalLoadsList = [];
+        let isCustomMode = false;
+        const BATT_5KWH = 5120; 
+        const DOD = 0.80; 
+
+        // DOM
+        const monthlyInput = document.getElementById('monthly-consumption-input');
+        const panelInput = document.getElementById('panel-wattage-input');
+        const daysInput = document.getElementById('autonomy-days');
+        const equipSelect = document.getElementById('equipment-select');
+        const hoursInput = document.getElementById('hours-input');
+        
+        // --- LOGICA DE TRAVA DE HORAS RESTAURADA ---
+        function applyHoursRule() {
+            if(!isCustomMode) {
+                const item = equipmentDatabase[equipSelect.value];
+                if (item.is_24h) {
+                    hoursInput.value = 24;
+                    hoursInput.readOnly = true;
+                    hoursInput.classList.add('bg-gray-600', 'cursor-not-allowed');
+                } else {
+                    hoursInput.readOnly = false;
+                    hoursInput.classList.remove('bg-gray-600', 'cursor-not-allowed');
+                }
+            } else {
+                hoursInput.readOnly = false;
+                hoursInput.classList.remove('bg-gray-600', 'cursor-not-allowed');
+            }
+        }
+
+        // Alternância de Abas
+        document.getElementById('tab-preset').addEventListener('click', () => {
+            isCustomMode = false;
+            document.getElementById('fields-preset').classList.remove('hidden');
+            document.getElementById('fields-custom').classList.add('hidden');
+            document.getElementById('tab-preset').classList.add('bg-blue-600', 'text-white');
+            document.getElementById('tab-custom').classList.remove('bg-blue-600', 'text-white');
+            applyHoursRule();
+        });
+
+        document.getElementById('tab-custom').addEventListener('click', () => {
+            isCustomMode = true;
+            document.getElementById('fields-preset').classList.add('hidden');
+            document.getElementById('fields-custom').classList.remove('hidden');
+            document.getElementById('tab-custom').classList.add('bg-blue-600', 'text-white');
+            document.getElementById('tab-preset').classList.remove('bg-blue-600', 'text-white');
+            applyHoursRule();
+        });
+
+        document.getElementById('clear-list-btn').addEventListener('click', () => {
+            criticalLoadsList = [];
+            render();
+        });
+
+        function updateResults() {
+            const monthly = parseFloat(monthlyInput.value) || 0;
+            const pW = parseInt(panelInput.value) || 550;
+            const days = parseInt(daysInput.value);
+
+            const totalWhBackupDiario = criticalLoadsList.reduce((acc, i) => acc + i.consumptionWhDay, 0);
+            const totalCapacidadeNecessaria = (totalWhBackupDiario * days) / DOD;
+            const baterias = Math.ceil(totalCapacidadeNecessaria / BATT_5KWH);
+
+            const dailyKwh = (monthly / 30) + (totalWhBackupDiario / 1000 / 0.85);
+            const paineis = Math.ceil((dailyKwh / 0.8 / 5.0) / (pW / 1000));
+            const totalPkWp = (paineis * pW) / 1000;
+
+            let invKw = 0;
+            if (paineis > 0 || criticalLoadsList.length > 0) {
+                const nominal = criticalLoadsList.reduce((acc, i) => acc + (i.potencia_w * i.quantity), 0);
+                const itemPico = criticalLoadsList.reduce((prev, curr) => (curr.potencia_w * curr.pico_arranque) > (prev.potencia_w * prev.pico_arranque) ? curr : prev, {potencia_w:0, pico_arranque:1, quantity:0});
+                const picoTotal = (nominal - (itemPico.potencia_w * itemPico.quantity)) + (itemPico.potencia_w * itemPico.pico_arranque * itemPico.quantity);
+                
+                const minInvByPanels = totalPkWp / 1.3; 
+                const minInvByBattery = baterias * 0.8; 
+
+                const finalRequirement = Math.max(picoTotal / 1000, minInvByPanels, minInvByBattery);
+                const marketSizes = [3, 5, 8, 10, 12, 15, 20];
+                invKw = marketSizes.find(s => s >= finalRequirement) || Math.ceil(finalRequirement);
+            }
+
+            document.getElementById('total-panels').textContent = paineis || 0;
+            document.getElementById('total-batteries').textContent = baterias || 0;
+            document.getElementById('inverter-size').textContent = invKw;
+            document.getElementById('p-w-disp').textContent = pW;
+        }
+
+        equipSelect.addEventListener('change', applyHoursRule);
+
+        document.getElementById('add-equipment-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            let data;
+            if(isCustomMode) {
+                const name = document.getElementById('custom-name').value || "Equip. Personalizado";
+                const power = parseInt(document.getElementById('custom-power').value) || 0;
+                data = { name: name, potencia_w: power, fator_ciclo: 1.0, pico_arranque: 2.0, is_24h: false };
+            } else {
+                data = equipmentDatabase[equipSelect.value];
+            }
+            
+            const qty = parseInt(document.getElementById('quantity-input').value);
+            const hrs = parseFloat(hoursInput.value);
+            criticalLoadsList.push({
+                ...data, id: Date.now(), quantity: qty,
+                consumptionWhDay: data.potencia_w * qty * hrs * data.fator_ciclo
+            });
+            render();
+        });
+
+        function render() {
+            const tbody = document.getElementById('equipment-list-body');
+            tbody.innerHTML = criticalLoadsList.length === 0 ? '<tr><td colspan="3" class="text-center p-4 text-gray-500">Nenhum item adicionado</td></tr>' : 
+            criticalLoadsList.map(i => `
+                <tr class="border-b border-gray-700">
+                    <td class="py-2 px-1">${i.name} (${i.quantity}x)</td>
+                    <td class="text-right text-yellow-500 font-mono">${i.consumptionWhDay.toFixed(0)} Wh</td>
+                    <td class="text-right"><button onclick="remove(${i.id})" class="text-red-500 px-3 py-1 font-bold">✕</button></td>
+                </tr>
+            `).join('');
+            updateResults();
+        }
+
+        window.remove = (id) => { criticalLoadsList = criticalLoadsList.filter(i => i.id !== id); render(); };
+
+        document.getElementById('copy-budget-btn').addEventListener('click', () => {
+            const res = `*Dimensionamento Solar Bahia*\n- Painéis: ${document.getElementById('total-panels').textContent}x ${panelInput.value}W\n- Baterias: ${document.getElementById('total-batteries').textContent} un (48V)\n- Inversor: ${document.getElementById('inverter-size').textContent}kW\n- Autonomia: ${daysInput.value} dia(s)`;
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(res)}`, '_blank');
+        });
+
+        document.getElementById('download-pdf-btn').addEventListener('click', () => {
+            html2pdf().from(document.getElementById('app-container')).set({ 
+                margin: 10, filename: 'Orcamento_Solar.pdf', 
+                html2canvas: { scale: 2, backgroundColor: '#111827' },
+                jsPDF: { unit: 'mm', format: 'a4' }
+            }).save();
+        });
+
+        // Setup inicial
+        equipmentDatabase.forEach((item, i) => {
+            const opt = document.createElement('option');
+            opt.value = i; opt.textContent = item.name;
+            equipSelect.appendChild(opt);
+        });
+
+        [monthlyInput, panelInput, daysInput].forEach(el => el.addEventListener('input', updateResults));
+        applyHoursRule();
+        updateResults();
+    });
+    </script>
+</body>
+</html>
