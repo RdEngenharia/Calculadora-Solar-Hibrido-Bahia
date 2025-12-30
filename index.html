@@ -296,17 +296,16 @@
         updateResults();
     });
     </script>
-    <script>
+  <link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#111827">
+
+<script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      // O caminho deve ser relativo ou exatamente igual ao definido no manifest/sw
-      navigator.serviceWorker.register('sw.js')
-        .then(reg => {
-          console.log('PWA: Service Worker registrado com sucesso para Bahia Solar!', reg);
-        })
-        .catch(err => {
-          console.log('PWA: Falha ao registrar o Service Worker:', err);
-        });
+      // O ponto antes da barra './' garante que ele procure na mesma pasta
+      navigator.serviceWorker.register('./sw.js')
+        .then(reg => console.log('PWA: Service Worker ativo!', reg.scope))
+        .catch(err => console.error('PWA: Erro no SW:', err));
     });
   }
 </script>
@@ -314,4 +313,5 @@
 </body>
 
 </html>
+
 
