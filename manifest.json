@@ -1,14 +1,11 @@
 {
   "name": "Calculadora Solar Hibrido Bahia",
-  "short_name": "CalculadoraSolarHibrido",
-  "description": "Dimensione sistemas solares híbridos com precisão de engenharia. Cálculos avançados de backup, baterias de lítio e geração fotovoltaica para a região da Bahia.",
-  "start_url": "/Calculadora-Solar-Hibrido-Bahia/index.html",
-  "scope": "/Calculadora-Solar-Hibrido-Bahia/",
+  "short_name": "SolarBahia",
+  "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
-  "orientation": "any",
-  "background_color": "#ffffff",
+  "background_color": "#111827",
   "theme_color": "#4CAF50",
-  "dir": "ltr",
   "icons": [
     {
       "src": "icon-192.png",
