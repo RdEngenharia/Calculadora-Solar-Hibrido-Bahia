@@ -297,11 +297,21 @@
     });
     </script>
     <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/Calculadora-Solar-Hibrido/sw.js')
-                .then(reg => console.log('Service Worker registrado', reg))
-                .catch(err => console.log('Erro no Service Worker', err));
-            </script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      // O caminho deve ser relativo ou exatamente igual ao definido no manifest/sw
+      navigator.serviceWorker.register('sw.js')
+        .then(reg => {
+          console.log('PWA: Service Worker registrado com sucesso para Bahia Solar!', reg);
+        })
+        .catch(err => {
+          console.log('PWA: Falha ao registrar o Service Worker:', err);
+        });
+    });
+  }
+</script>
+            
 </body>
 
 </html>
+
